@@ -28,6 +28,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        System.out.println("spring security called");
 //        Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqYXkiLCJpYXQiOjE3NDE2MDM1MTEsImV4cCI6MTc0MTYwMzYxOX0.2FW4TTHws5UYgoFh678M3PM2CpkJwAsjr39sDu5mpKs
         String authHeader = request.getHeader("Authorization");
         String token = null;

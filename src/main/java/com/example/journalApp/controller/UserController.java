@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 //import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,19 +29,24 @@ public class UserController { // Corrected spelling
     public List<UserEntity> getAllUsers() { // Corrected method name
         return userService.getAll();
     }
+
     @PostMapping ("/login")
+
     public  String login(@RequestBody UserEntity user){
+        System.out.println("hello");
         return userService.verify(user) ;
     }
 
     @PostMapping("/register")
     public UserEntity createUser(@RequestBody UserEntity user) {
-        return userService.saveUser(user);
+        return userService.saveNewUser(user);
     }
 
 
-    @PutMapping("/{username}")
-    public ResponseEntity<?> updateUser(@RequestBody UserEntity user, @PathVariable String username) {
+    @PutMapping
+    public ResponseEntity<?> updateUser(@RequestBody UserEntity user) {
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String username=authentication.getName();
         UserEntity userInDB = userService.findByUserName(username);
         if (userInDB != null) {
             userInDB.setUserName(user.getUserName()); // Corrected method name

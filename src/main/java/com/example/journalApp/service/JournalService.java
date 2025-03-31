@@ -3,6 +3,8 @@ package com.example.journalApp.service;
 import com.example.journalApp.entity.JournalEntity;
 import com.example.journalApp.entity.UserEntity;
 import com.example.journalApp.repository.JournalRepository;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class JournalService {
 
     @Autowired
@@ -18,14 +21,18 @@ public class JournalService {
     @Autowired
     private UserService userService;
 
+
+    @Transactional
     public void saveEntry(JournalEntity journalEntry, String userName) {
-        UserEntity user = userService.findByUserName(userName);
-        if (user == null) {
-            throw new RuntimeException("User not found");
+        try {
+            UserEntity user = userService.findByUserName(userName);
+            JournalEntity saved = journalRepository.save(journalEntry);
+            user.getJournalEntries().add(saved);
+            userService.saveUser(user);
+        } catch(Exception e) {
+            System.out.println(e);
+            throw new RuntimeException("An error occured while saving the entry",e);
         }
-        journalEntry.setUser(user);
-        JournalEntity saved = journalRepository.save(journalEntry);
-        user.getJournalEntries().add(saved);
     }
 
     public List<JournalEntity> getAllByUser(UserEntity user) {
@@ -42,12 +49,26 @@ public class JournalService {
         return journalRepository.findById(id);
     }
 
-    public void deleteById(Long id, String userName) {
-        UserEntity user = userService.findByUserName(userName);
-        user.getJournalEntries().removeIf(x ->x.getId().equals(id));//here lambda expression is used
-        userService.saveUser (user);   //updated user will save                                                            // means user ki saari journal entries delete ho jayegi
-        journalRepository.deleteById(id);
-    }
+
+    @Transactional
+    public boolean deleteById(Long id, String userName) {
+        boolean removed=false;
+        try {
+            UserEntity user = userService.findByUserName(userName);
+            removed = user.getJournalEntries().removeIf(x -> x.getId().equals(id));//here lambda expression is used
+            if (removed) {
+                userService.saveUser(user);   //updated user will save                                                            // means user ki saari journal entries delete ho jayegi
+                journalRepository.deleteById(id);
+            }
+        } catch(Exception e){
+              log.error("ERROR",e);
+                throw new RuntimeException("ann error occourd while delting", e);
+            }
+        return removed;
+        }
+
+
+
 
     public void saveEntry(JournalEntity journalEntry) {
         journalRepository.save(journalEntry);

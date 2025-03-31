@@ -24,8 +24,15 @@ public class UserService {
     @Autowired
     AuthenticationManager authenticationManager;
 
-    public UserEntity saveUser(UserEntity user) {
+    //this is used in register
+    public UserEntity saveNewUser(UserEntity user) {
         return userRepository.save(user);
+    }
+
+    //this  used in saving the entry on added based on use id  when the user login
+    //its used  in delete by userID method and  get by userID
+    public void saveUser(UserEntity user) {
+       userRepository.save(user);
     }
 
     public List<UserEntity> getAll() {

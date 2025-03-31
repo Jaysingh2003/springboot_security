@@ -36,7 +36,8 @@ public class SpringConfig {
                 .csrf(customizer->customizer.disable())
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("users/register","users/login")
-                        .permitAll()
+                         .permitAll()
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN") // ✅ Fix: Use hasAuthority
                         .anyRequest().authenticated())
 //               .formLogin(Customizer.withDefaults())//with the help pof this the login form will disabled so can we can recieve the token
                   .httpBasic(Customizer.withDefaults()) //with the help of this we can se the login form not the  whole code
@@ -47,6 +48,8 @@ public class SpringConfig {
          return http.build();
     }
 
+
+    //here we give the userdetails to the springsecirty which was implemented by the MYUserDetailsService.
     @Bean
     public AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider provider=new DaoAuthenticationProvider();

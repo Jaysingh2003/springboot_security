@@ -23,10 +23,10 @@ public class UserEntity {
 
 
 
-    @JsonIgnore  // ✅ Prevent infinite loop in serialization
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<JournalEntity> journalEntries = new ArrayList<>();
-     private List<String> role;
+    private List<String> role;
 
 
 }
